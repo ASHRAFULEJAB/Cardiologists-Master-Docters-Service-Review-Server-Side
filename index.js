@@ -16,19 +16,22 @@ app.listen(port, () => {
 })
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.dnw37y6.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
+
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
     try {
         const doctorsServicesCollection = client.db('cardiologistsDB').collection('services')
+        const reviewCollection = client.db('cardiologistsDB').collection('reviews')
+
+        // servicess
         app.get('/services-home', async (req, res) => {
             const query = {}
             
             const cursor = doctorsServicesCollection.find(query)
             const services = await cursor.limit(3).toArray()
             res.send(services)
-          })
+        })
      
         app.get('/services', async (req, res) => {
             const query = {}
@@ -42,8 +45,63 @@ async function run() {
             const query = { _id: ObjectId(id) }
             const service = await doctorsServicesCollection.findOne(query)
             res.send(service)
+        })
+        
+
+        // reviews
+        app.get('/reviews', async (req, res) => {
+            let query = {}
+            if (req.query.email) {
+                query = {
+                    email: req.query.email,
+                }
+            }
+            const cursor = reviewCollection.find(query)
+            const review = await cursor.toArray()
+            res.send(review)
+        })
+        app.get('/reviews/:id', async (req, res) => {
+            const id = req.params.id;
+            // const name = req.body.name
+            // const email = req.body.email
+            console.log(id)
+            // const query = {}
+            // const options = {
+            //     projection: {
+            //         service: id,
+            //         name:1,
+            //         email: 1,
+            //         message:1
+            //     }
+            // }
+            const cursor = reviewCollection.find({service:id})
+            const review = await cursor.toArray()
+            console.log(review);
+            res.send(review)
+        })
+        app.post('/reviews', async (req, res) => {
+            const review = req.body
+            const result = await reviewCollection.insertOne(review)
+            res.send(result)
+        })
+        app.delete('/reviews/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await reviewCollection.deleteOne(query)
+            res.send(result)
+        })
+        app.patch('/reviews/:id',  async (req, res) => {
+            const id = req.params.id
+            const status = req.body.status
+            const query = { _id: ObjectId(id) }
+            const updatedDoc = {
+              $set: {
+                status: status,
+              },
+            }
+            const result = await reviewCollection.updateOne(query, updatedDoc)
+            res.send(result)
           })
-     
     }
     finally {
         
