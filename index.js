@@ -27,16 +27,16 @@ async function run() {
         // servicess
         app.get('/services-home', async (req, res) => {
             const query = {}
-            
-            const cursor = doctorsServicesCollection.find(query)
+            const price = req.query.price;
+            const cursor = doctorsServicesCollection.find(query).sort({price:-1})
             const services = await cursor.limit(3).toArray()
             res.send(services)
         })
      
         app.get('/services', async (req, res) => {
             const query = {}
-            
-            const cursor = doctorsServicesCollection.find(query)
+            const price = req.query.price;
+            const cursor = doctorsServicesCollection.find(query).sort({price:-1})
             const services = await cursor.toArray()
             res.send(services)
         })
@@ -45,6 +45,11 @@ async function run() {
             const query = { _id: ObjectId(id) }
             const service = await doctorsServicesCollection.findOne(query)
             res.send(service)
+        })
+        app.post('/services-home', async (req, res) => {
+            const service = req.body
+            const result = await doctorsServicesCollection.insertOne(service)
+            res.send(result)
         })
         
 
