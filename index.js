@@ -96,20 +96,9 @@ async function run() {
       const review = await cursor.toArray()
       res.send(review)
     })
-    app.get('/reviews/:id',verifyJWT,  async (req, res) => {
+    app.get('/reviews/:id',  async (req, res) => {
       const id = req.params.id
-      // const name = req.body.name
-      // const email = req.body.email
-      // console.log(id)
-      // const query = {}
-      // const options = {
-      //     projection: {
-      //         service: id,
-      //         name:1,
-      //         email: 1,
-      //         message:1
-      //     }
-      // }
+    
       const cursor = reviewCollection.find({ service: id })
       const review = (await cursor.toArray())
       res.send(review)
@@ -135,22 +124,7 @@ async function run() {
         { _id: ObjectId(id) },
         { $set: { message: message } }
       )
-      console.log(message)
-      // const id = req.params.id
-      // // const filter = { _id: ObjectId(id) }
-      // // const user = req.body
-      // // const updatedUsser = {
-      // //   $set
-      // // }
-      // // console.log(updateUser);
-      //   const status = req.body.status
-      //   const query = { _id: ObjectId(id) }
-      //   const updatedDoc = {
-      //     $rename: {
-      //       status: status,
-      //     },
-      //   }
-
+      
       res.send(result)
     })
   } finally {
