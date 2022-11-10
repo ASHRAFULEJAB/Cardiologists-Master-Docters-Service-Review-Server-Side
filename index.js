@@ -5,6 +5,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 require('dotenv').config()
+const jwt = require('jsonwebtoken')
 
 const port = process.env.PORT || 5000
 
@@ -51,10 +52,40 @@ async function run() {
             const result = await doctorsServicesCollection.insertOne(service)
             res.send(result)
         })
+
+        //jwt token
+        function verifyJWT(req, res, next) {
+            const authHeader = req.headers.authorization
+            if (!authHeader) {
+              return res.status(401).send('Unauthorized Access')
+            }
+            const token = authHeader.split(' ')[1]
+            jwt.verify(
+              token,
+              process.env.ACCESS_TOKEN_JWT,
+              function (err, decoded) {
+                if (err) {
+                  return res.status(403).send('Forbidden Access')
+                }
+                req.decoded = decoded
+                next()
+              }
+            )
+        }
+        
+        app.post('/jwtToken', (req, res) => {
+            const user = req.body
+            console.log(user)
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_JWT, {
+              expiresIn: '10d',
+            })
+            res.send({ token })
+          })
+      
         
 
         // reviews
-        app.get('/reviews', async (req, res) => {
+        app.get('/reviews',verifyJWT, async (req, res) => {
             let query = {}
             if (req.query.email) {
                 query = {
