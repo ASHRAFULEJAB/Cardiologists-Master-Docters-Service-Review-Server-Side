@@ -29,7 +29,7 @@ async function run() {
         app.get('/services-home', async (req, res) => {
             const query = {}
             const price = req.query.price;
-            const cursor = doctorsServicesCollection.find(query).sort({price:-1})
+            const cursor = doctorsServicesCollection.find(query).sort({_id:-1})
             const services = await cursor.limit(3).toArray()
             res.send(services)
         })
@@ -37,7 +37,7 @@ async function run() {
         app.get('/services', async (req, res) => {
             const query = {}
             const price = req.query.price;
-            const cursor = doctorsServicesCollection.find(query).sort({price:-1})
+            const cursor = doctorsServicesCollection.find(query).sort({_id:-1})
             const services = await cursor.toArray()
             res.send(services)
         })
@@ -131,7 +131,7 @@ async function run() {
             const status = req.body.status
             const query = { _id: ObjectId(id) }
             const updatedDoc = {
-              $set: {
+              $rename: {
                 status: status,
               },
             }
