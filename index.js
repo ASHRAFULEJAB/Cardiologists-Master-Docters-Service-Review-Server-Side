@@ -96,7 +96,7 @@ async function run() {
             const review = await cursor.toArray()
             res.send(review)
         })
-        app.get('/reviews/:id', async (req, res) => {
+        app.get('/reviews/:id',verifyJWT, async (req, res) => {
             const id = req.params.id;
             // const name = req.body.name
             // const email = req.body.email
